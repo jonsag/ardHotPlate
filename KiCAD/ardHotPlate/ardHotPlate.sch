@@ -401,17 +401,6 @@ F 3 "http://www.st.com/content/ccc/resource/technical/document/datasheet/c9/16/8
 	1    9050 5700
 	1    0    0    -1  
 $EndComp
-$Comp
-L Diode_Bridge:ABS2 D1
-U 1 1 617386D9
-P 7150 4100
-F 0 "D1" H 7494 4146 50  0000 L CNN
-F 1 "ABS2" H 7494 4055 50  0000 L CNN
-F 2 "Diode_SMD:Diode_Bridge_Diotec_ABS" H 7300 4225 50  0001 L CNN
-F 3 "https://diotec.com/tl_files/diotec/files/pdf/datasheets/abs2.pdf" H 7150 4100 50  0001 C CNN
-	1    7150 4100
-	1    0    0    -1  
-$EndComp
 Wire Wire Line
 	8750 4100 8400 4100
 Wire Wire Line
@@ -719,4 +708,15 @@ Wire Wire Line
 	7850 4900 6000 4900
 Wire Wire Line
 	7400 2900 7200 2900
+$Comp
+L Device:D_Bridge_+A-A D1
+U 1 1 618970EA
+P 7150 4100
+F 0 "D1" H 7494 4146 50  0000 L CNN
+F 1 "D_Bridge_+A-A" H 7494 4055 50  0000 L CNN
+F 2 "Diode_THT:Diode_Bridge_Round_D9.8mm" H 7150 4100 50  0001 C CNN
+F 3 "~" H 7150 4100 50  0001 C CNN
+	1    7150 4100
+	1    0    0    1   
+$EndComp
 $EndSCHEMATC
