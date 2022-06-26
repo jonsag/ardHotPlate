@@ -1,5 +1,6 @@
-#define plot 1
-/* Output from plot:
+#define plot 1 // plotvalues instead of regular serial output
+/*
+Output from plot:
 Average analog reading,
 Thermistor resistance,
 Temperature,
