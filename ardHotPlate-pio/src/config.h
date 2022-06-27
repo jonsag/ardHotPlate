@@ -1,6 +1,7 @@
-#define plot 1 // plotvalues instead of regular serial output
+#define plot 1 // prine values instead of regular serial output
 /*
 Output from plot:
+Set point,
 Average analog reading,
 Thermistor resistance,
 Temperature,
@@ -47,17 +48,72 @@ float average;
 
 float steinhart;
 
+// ============================================= Profiles =============================================
+// Reflow profile
+String states[4] = {"Preheat      ", "Soak   ", "Ramp up", "Reflow "};
+
+int Times_profile[3][4] = {{60, 120, 60, 20},
+                           {60, 150, 60, 20},
+                           {60, 200, 60, 20}};
+
+int Temps_profile[3][4] = {{150, 165, 190, 190},
+                           {150, 165, 250, 250},
+                           {150, 165, 230, 230}};
+/*
+int Temps_profile[3][4] = {{150, 165, 235, 235},
+                           {150, 165, 250, 250},
+                           {150, 165, 230, 230}};
+*/
+// ===========================================   Settings   ===========================================
+const int timeDelay = 5;
+//const int overshoot = 20;
+const int hotspotCompensation = 0;
+//const int hysteresis = 1;
+
+// ===========================================   Variables   ===========================================
+double setPoint;
+//int roomTemp;
+int currentState;
+float timeElapsed = 0;
+float timeSinceLastHeat = 0;
+int timeLeft = 0;
+int totalTimeLeft = 0;
+float timeHeating = 0;
+//float error;
+float measuredTemp;
+int profile = 0;
+
+unsigned long currentMillis;
+unsigned long startMillis = 0;
+
+// ============================================   States   =============================================
+enum reflowStates
+{
+    HEATING,
+    COOL,
+    STARTUP
+};
+
+reflowStates reflowState = STARTUP;
+
+// =============================================   Pins   =============================================
+// Relay
+//const int relay_pin = 11;
+
+// Buttons
+const int button = 12;
+
 /**********
  * PID
  *********/
 #include <PID_v1.h>
 
-#define SSRPin 3 // must be a pin with PWM
+#define SSRPin 11 // must be a pin with PWM
 
-double setPoint = 100; // define variables we'll be connecting to
-double PIDInput;
+double PIDInput;  // define variables we'll be connecting to
 double PIDOutput;
 
+/*
 double aggKp = 4; // aggressive tuning parameters
 double aggKi = 0.2;
 double aggKd = 1;
@@ -65,13 +121,47 @@ double aggKd = 1;
 double consKp = 1; // conservative tuning parameters
 double consKi = 0.05;
 double consKd = 0.25;
+*/
 
-// double Kp = 2; // Proportional constant
-// double Ki = 5; // Integral Constant
-// double Kd = 1; // Derivative Constant
-
-PID myPID(&PIDInput, &PIDOutput, &setPoint, consKp, consKi, consKd, DIRECT);
+double kp = 0.25;
+double ki = 0.01;
+double kd = 0.5;
 
 double gap; // the difference between setPoint and actual value
 
 #define aggressiveGap 50
+
+/**********
+ * PID auto tune
+ *********/
+#include <PID_AutoTune_v0.h>
+
+byte ATuneModeRemember = 2;
+
+
+double kpmodel = 1.5;
+double taup = 100;
+
+double tuningSetPoint = 80;
+
+double theta[50];
+
+double outputStart = 5;
+
+double aTuneStep = 50;
+double aTuneNoise = 1;
+double aTuneStartValue = 100;
+
+unsigned int aTuneLookBack = 20;
+
+boolean tuning = false;
+
+unsigned long now;
+unsigned long modelTime;
+unsigned long serialTime;
+
+PID myPID(&PIDInput, &PIDOutput, &setPoint, kp, ki, kd, DIRECT);
+
+PID_ATune aTune(&PIDInput, &PIDOutput);
+
+boolean useSimulation = false; // set to false to connect to the real world
